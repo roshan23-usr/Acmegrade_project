@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>login</title>
+    <style>
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 90vh;
+             background-color: cornflowerblue;
+        }
+        .box{
+            display: flex;
+            flex-direction: column;
+            border: 4px solid  rgb(34, 75, 152);
+            height: 10vh;
+            width: 10%;
+            justify-content: center;
+            align-items: center;
+            border-radius: 100%;
+        }
+        .box:hover{
+            display: flex;
+            flex-direction: column;
+            border: 4px solid  rgb(34, 75, 152);
+            height: 40vh;
+            width: 30%;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            border-radius: 15px;
+            transition: all 3s;
+        }
+        .box:hover input{
+            border: none;
+            border-radius: 10px;
+            background-color: white;
+            height: 5vh;
+            transition: all 3s;
+        }
+        .box:hover button{
+            height: 4vh;
+            width: 110px;
+            margin-left: 110px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            transition: all 3s;
+        }
+        button:hover{
+            height: 4vh;
+            width: 110px;
+            margin-left: 110px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: firebrick;
+            color: white;
+        }
+        h1{
+           color: white;
+           font-family: sans-serif;
+            border-bottom: 2px solid white;
+            width: fit-contents;
+            text-align: center;
+
+        }
+       
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>LOGIN&#128274;</h1>
+    <form action=""  onsubmit="login();return false">
+        <input type="text" class="a" id="uname" placeholder="username">
+        <input type="password" class="a" id="upass" placeholder="password"><br><br>
+        <button class="a">login</button>
+    </form>
+    </div>
+
+    <script>
+        async function login(){
+
+           const unameobj=document.getElementById("uname")
+            const upassobj=document.getElementById("upass")
+
+            const payload={username:unameobj.value,password:upassobj.value}
+
+            const logurl="http://localhost:4100/auth/"
+
+            const response= await fetch(`${logurl}login`,{
+                method:"post",
+                body:JSON.stringify(payload),
+                headers:{
+                    "content-type": "application/json"
+                }
+        })
+
+            const responsedata= await response.json();
+            alert(responsedata.message)
+
+        if(responsedata.token && responsedata.userinfo){
+            sessionStorage.setItem("token",responsedata.token)
+            sessionStorage.setItem("owner",responsedata.userinfo.username)
+             if(responsedata.userinfo.role.toLowerCase()==="vendor"){
+                  location.href="vendorview.html"
+             }else if(responsedata.userinfo.role.toLowerCase()==="buyer"){
+                location.href="userview.html"
+             }else{}
+        }else{
+
+             var valid=confirm("you have to sign up first")
+            if(valid){
+                location.href="signup.html"
+            }else{
+                alert("check credentials before loging")
+            }
+            
+        }
+    }
+    </script>
+</body>
+</html>

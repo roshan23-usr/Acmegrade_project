@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>VIEW PAGE</title>
+    <style>
+        body{
+            background-color: rgb(35, 124, 124);
+        }
+        #header{
+            margin-top: 30px;
+            margin-bottom: 40px;
+            background-color: aqua;
+        }
+         .pagename{
+            color: rgb(3, 11, 26);
+        }
+        #parent{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card{
+             border: 1px solid white;
+            background-color: rgb(7, 72, 72);
+            height: 30vh;
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+             border-radius: 10px;
+
+        }
+        .side{
+            align-self: flex-end;
+            display: flex;
+            flex-direction: column;
+            justify-self:center;
+            align-items: start;
+        }
+        .photo{
+            border: 1px solid white;
+            height: 20vh;
+            width: 200px;
+            margin: 10px;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+             border-radius: 10px;
+           
+        }
+        button:hover{
+            background-color: crimson;
+            color: white;
+        }
+        .btn{
+            display: flex;
+            justify-content: space-evenly;
+            margin-top: 25px;
+        }
+        .btn button{
+            height: 4vh;
+            width: 110px;
+            border: none;
+            border-radius: 10px;
+        }
+        .child{
+            color: rgb(244, 242, 242);
+            padding: 10px;
+        }
+        .name{
+            font-size: 30px;
+            font-family: fantasy;
+        }
+        .price{
+            font-weight: 800;
+        }
+        .price::after{
+            content: " RS";
+        }
+
+
+        
+    </style>
+</head>
+<body>
+    <!-- <button onclick="displaycard()">view</button> -->
+     <div id="header"></div>
+     <h2 class="pagename">SHOP EASILY:</h2>
+    <div id="parent"></div>
+    <script>
+        const carturl="http://localhost:4100/cart/"
+        const prdurl="http://localhost:4100/product/"
+
+          async function loadmenu() {
+            
+            const response= await fetch("usermenu.html");
+            const responddata= await response.text()
+
+           const  headerobj=document.getElementById("header")
+            headerobj.innerHTML=responddata
+             displaycard()
+
+        }
+        loadmenu()
+        
+
+        async function displaycard(){
+
+        const parobj= document.getElementById("parent")
+
+          const response=await fetch(`${prdurl}view`,{
+            method:"GET",
+            headers:{
+                 "Authorization": sessionStorage.getItem("token")
+            }
+           })
+
+          const responsedata=await response.json()
+
+          if(responsedata.error==true){
+            alert(responsedata.message)
+            return
+          }
+
+          if(responsedata.error==false){
+
+            const products=responsedata.data;
+            parobj.innerHTML=" "
+            for( let i=0;i<products.length;i++){
+            parobj.innerHTML+=`
+          <div class="card">
+                           <div class="photo">IMGAE</div>
+                            <div class="side">
+                            <div class="name child">${products[i].name}</div>
+                            <div class="price child">${products[i].price}</div>
+                            <div class="details child">${products[i].details}</div>
+                            </div>
+                            <div class="btn">
+                                <button onclick="addtocart(${products[i].id})">Add to Cart</button>
+                            </div>
+           </div> `
+          }
+        }
+        }
+
+
+        async function addtocart(id){
+
+            const payload={pid:id}
+
+            // var check=confirm(`are u sure to delete ${pname}`)
+
+            // if(check){
+
+            const response= await fetch(`${carturl}add`,{
+                method:"post",
+                headers:{
+                    "content-type":"application/json",
+                    "Authorization":sessionStorage.getItem("token")
+                },
+                body:JSON.stringify(payload)
+            })
+            const responddata= await response.json()
+
+            alert(responddata.message)
+
+            displaycard()
+        // }else{
+
+        //     alert("all good")
+        // }
+
+        }
+       
+       
+    </script>
+</body>
+</html>

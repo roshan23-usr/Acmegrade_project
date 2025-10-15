@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>VIEW PAGE</title>
+    <style>
+          body{
+            background-color: rgb(35, 124, 124);
+        }
+        #header{
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background-color: aqua;
+        }
+        .pagename{
+            color: rgb(3, 11, 26);
+        }
+        #parent{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card{
+             border: 1px solid white;
+            background-color: rgb(7, 72, 72);
+            height: 30vh;
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+             border-radius: 10px;
+
+        }
+        .side{
+            align-self: flex-end;
+            display: flex;
+            flex-direction: column;
+            justify-self:center;
+            align-items: start;
+        }
+        .photo{
+            border: 1px solid white;
+            height: 20vh;
+            width: 200px;
+            margin: 10px;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+             border-radius: 10px;
+           
+        }
+        button:hover{
+            background-color: crimson;
+            color: white;
+        }
+        .btn{
+            display: flex;
+            justify-content: space-evenly;
+            margin-top: 25px;
+        }
+        .btn button{
+            height: 4vh;
+            width: 110px;
+            border: none;
+            border-radius: 10px;
+        }
+        .child{
+            color: rgb(244, 242, 242);
+            padding: 10px;
+        }
+        .name{
+            font-size: 30px;
+            font-family: fantasy;
+        }
+        .price{
+            font-weight: 800;
+        }
+        .price::after{
+            content: " RS";
+        }
+        .order-details{
+            display: flex;
+            color: white;
+            margin: 20px;
+        }
+        .order-details h3::after{
+            content: " RS";
+        }
+        .order-details button{
+            height: 5vh;
+            width: fit-content;
+            padding: 4px;
+            background-color: greenyellow;
+            margin: 8px;
+            border-radius: 5px;
+
+            /* color:red; */
+        }
+        .order-details button:hover{
+            height: 5vh;
+            width: fit-content;
+            padding: 6px;
+            background-color: greenyellow;
+            margin: 8px;
+            color:red;
+            border-radius: 5px;
+        }
+        .order-details a{
+            text-decoration: none;
+            color:black;
+        }
+        .order-details a:hover{
+            text-decoration: none;
+            color:red;
+        }
+
+       
+
+        
+    </style>
+</head>
+<body>
+    <!-- <button onclick="displaycard()">view</button> -->
+     <div id="header"></div>
+     <h2 class="pagename">CART:</h2>
+     <div id="parent"></div>
+     <div id="order"></div>
+    <script>
+        const carturl="http://localhost:4100/cart/"
+        const prdurl="http://localhost:4100/product/"
+
+          async function loadmenu() {
+            
+            const response= await fetch("usermenu.html");
+            const responddata= await response.text()
+
+           const  headerobj=document.getElementById("header")
+            headerobj.innerHTML=responddata
+             displaycard()
+
+        }
+        loadmenu()
+        
+
+        async function displaycard(){
+
+        const parobj= document.getElementById("parent")
+        const orderobj= document.getElementById("order")
+
+          const response=await fetch(`${carturl}view`,{
+            method:"GET",
+            headers:{
+                 "Authorization": sessionStorage.getItem("token")
+            }
+           })
+
+          const responsedata=await response.json()
+
+          if(responsedata.error==true){
+            alert(responsedata.message)
+            return
+          }
+
+          if(responsedata.error==false){
+
+            const products=responsedata.data;
+            let amount=0;
+            parobj.innerHTML=" "
+            for( let i=0;i<products.length;i++){
+            amount+=products[i].price
+            parobj.innerHTML+=`
+            <div class="card">
+                           <div class="photo">IMGAE</div>
+                            <div class="side">
+                            <div class="name child">${products[i].name}</div>
+                            <div class="price child">${products[i].price}</div>
+                            <div class="details child">${products[i].details}</div>
+                            </div>
+                            <div class="btn">
+                                <button onclick="delfromcart(${products[i].cartid},'${products[i].name}')">remove item</button>
+                            </div>
+           </div> `
+          }
+          orderobj.innerHTML=
+        `<div class="order-details">
+                            <h3>TOTAL AMOUNT:${amount}</h3>
+                            <button onclick="placeorder()">place order</button>
+                            <button><a href="yourorders.html">View orders</a></button>
+        </div>`
+        }
+       
+
+        }
+
+
+        async function delfromcart(id,name){
+
+            const payload={cartid:id}
+
+            var check=confirm(`are u sure to delete ${name}`)
+
+            if(check){
+
+            const response= await fetch(`${carturl}remove`,{
+                method:"post",
+                headers:{
+                    "content-type":"application/json",
+                    "Authorization":sessionStorage.getItem("token")
+                },
+                body:JSON.stringify(payload)
+            })
+            const responddata= await response.json()
+
+            alert(responddata.message)
+
+            displaycard()
+        }else{
+
+            alert("all good")
+        }
+
+        }
+
+        async function placeorder() {
+
+            const orderurl="http://localhost:4100/order/"
+
+           const response=await fetch(`${orderurl}add`,{
+                method:"post",
+                headers:{
+                    "content-type":"application/json",
+                    "Authorization":sessionStorage.getItem("token")
+                }
+            })
+
+            
+            const responddata=await response.json()
+            alert(responddata.message)
+            
+        }
+
+        
+       
+    </script>
+</body>
+</html>

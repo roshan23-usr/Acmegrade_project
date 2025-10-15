@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>add product</title>
+    <style>
+        body{
+            background-color: rgb(35, 124, 124);
+        }
+         #header{
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background-color: aqua;
+        }
+        form{
+            height: 40vh;
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid whitesmoke;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            background-color: rgb(18, 79, 79);
+            border-radius: 20px;
+
+        }
+        form::before{
+            content: "Product Details";
+            color: white;
+            
+        }
+        form input{
+            height: 4vh;
+            width: 200px;
+            border: none;
+            border-radius: 10px;
+        }
+        form textarea{
+            height: 6vh;
+            width: 200px;
+            border: none;
+            border-radius: 10px;
+        }
+        form button{
+            margin-top: 5px;
+            height: 4vh;
+            width: 100px;
+             border: none;
+            border-radius: 10px;
+        }
+        button:hover{
+            background-color: crimson;
+            color: white;
+        }
+        h1{
+            color: white;
+            font-family: cursive;
+            margin: 40px;
+            text-decoration:underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+
+    </div>
+    <h1>Products into market</h1>
+    <form action="" onsubmit="addproduct();return false">
+
+                <input type="text" id="name" placeholder="name">
+                <input type="text" id="price" placeholder="price">
+                <textarea  id="details"></textarea>
+                <button>add </button>
+    </form>
+    <script>
+
+        async function loadmenu() {
+            
+            const response= await fetch("vendormenu.html");
+            const responddata= await response.text()
+
+            headerobj=document.getElementById("header")
+            headerobj.innerHTML=responddata
+        }
+        loadmenu()
+
+        async function addproduct(){
+
+        nameobj=document.getElementById("name");
+         priceobj=document.getElementById("price");
+          detailsobj=document.getElementById("details");
+        
+        const payload={prdname:nameobj.value,price:priceobj.value,details:detailsobj.value}
+
+        const prdurl="http://localhost:4100/product/"
+
+        const respond= await fetch(`${prdurl}add`,{
+            method:"post",
+            body:JSON.stringify(payload),
+            headers:{
+                "content-type":"application/json",
+                "Authorization": sessionStorage.getItem("token"),
+                "owner":sessionStorage.getItem("owner")
+            }
+
+        })
+        const responddata=await respond.json()
+        alert(responddata.message)
+    
+    }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGOUT</title>
+</head>
+<body>
+   <script>
+    let check=confirm("logout confirm")
+    if(check){
+    sessionStorage.clear
+    location.href="login.html"
+    }else{
+       location.href="usermenu.html"
+    }
+   </script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Orders</title>
+    <style>
+         body{
+            background-color: rgb(35, 124, 124);
+        }
+        #header{
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background-color: aqua;
+        }
+        a{
+            text-decoration: none;
+            color: white;
+        }
+        .pagename{
+            color: rgb(3, 11, 26);
+        }
+        .details{
+            display: flex;
+            justify-content: space-between;
+        }
+        .details button{
+            height: 6vh ;
+            width: 200px;
+            border-radius: 3%;
+            border: none;
+            background-color: rgb(182, 46, 46);
+            font-size: 15px;
+        }
+        #parent{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card{
+             border: 1px solid white;
+            background-color: rgb(7, 72, 72);
+            height: 30vh;
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+             border-radius: 10px;
+
+        }
+        .side{
+            align-self: flex-end;
+            display: flex;
+            flex-direction: column;
+            justify-self:center;
+            align-items: start;
+             border-radius: 10px;
+        }
+        .photo{
+            border: 1px solid white;
+            height: 20vh;
+            width: 200px;
+            margin: 10px;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+           
+        }
+        button:hover{
+            background-color: red;
+            color: white;
+        }
+        .btn{
+            display: flex;
+            justify-content: space-evenly;
+            margin-top: 25px;
+        }
+        .btn button{
+            height: 4vh;
+            width: 110px;
+            border: none;
+            border-radius: 10px;
+        }
+        .child{
+            color: rgb(244, 242, 242);
+            padding: 10px;
+        }
+        .name{
+            font-size: 30px;
+            font-family: fantasy;
+        }
+        .price{
+            font-weight: 800;
+        }
+        .price::after{
+            content: " RS";
+        }
+        .order-details{
+            display: flex;
+            color: white;
+            margin: 20px;
+        }
+        .order-details h3::after{
+            content: " RS";
+        }
+       .address{
+        border-top:2px solid rgb(148, 136, 136) ;
+        margin: 20px;
+        color: rgb(4, 26, 41);
+       }
+       .payment{
+        margin-left: 20px;
+       }
+       
+       
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div class="details">
+         <h2 class="pagename">YOUR ORDERS:</h2>
+         <button><a href="deliveryform.html">Add Delivery Address</a></button>
+    </div>
+     <div id="parent"></div>
+     <div id="order"></div>
+    <h2 class="pagename">Delivery Address:</h2>
+     <div id="oderinfo"></div>
+    <script>
+        const orderurl="http://localhost:4100/order/"
+         const dlvryurl="http://localhost:4100/delivery/"
+
+          async function loadmenu() {
+            
+            const response= await fetch("usermenu.html");
+            const responddata= await response.text()
+
+           const  headerobj=document.getElementById("header")
+            headerobj.innerHTML=responddata
+             displaycard()
+
+        }
+        loadmenu()
+        
+
+        async function displaycard(){
+
+        const parobj= document.getElementById("parent")
+        const orderobj= document.getElementById("order")
+
+          const response=await fetch(`${orderurl}view`,{
+            method:"GET",
+            headers:{
+                 "Authorization": sessionStorage.getItem("token")
+            }
+           })
+
+          const responsedata=await response.json()
+
+          if(responsedata.error==true){
+            alert(responsedata.message)
+            return
+          }
+
+          if(responsedata.error==false){
+
+            const products=responsedata.data;
+            let amount=0;
+            parobj.innerHTML=" "
+            for( let i=0;i<products.length;i++){
+            amount+=products[i].price
+            parobj.innerHTML+=`
+            <div class="card">
+                           <div class="photo">IMGAE</div>
+                            <div class="side">
+                            <div class="name child">${products[i].name}</div>
+                            <div class="price child">${products[i].price}</div>
+                            <div class="details child">${products[i].details}</div>
+                            </div>
+                            <div class="btn">
+                                <button onclick="cancelitem(${products[i].orderid},'${products[i].name}')">cancel order</button>
+                            </div>
+           </div> `
+          }
+          orderobj.innerHTML=
+        `<div class="order-details">
+                            <h3>TOTAL AMOUNT:${amount}</h3>
+                            <h4 class="payment">Payment: Cash On Delivery Only</h4>
+
+        </div>`
+        }
+        dlvryinfo()
+       
+
+        }
+
+
+        async function cancelitem(id,name){
+
+            const payload={orderid:id}
+
+            var check=confirm(`are u sure to cancel  ${name}`)
+
+            if(check){
+
+            const response= await fetch(`${orderurl}cancel`,{
+                method:"post",
+                headers:{
+                    "content-type":"application/json",
+                    "Authorization":sessionStorage.getItem("token")
+                },
+                body:JSON.stringify(payload)
+            })
+            const responddata= await response.json()
+
+            alert(responddata.message)
+
+            displaycard()
+        }else{
+
+            alert("all good")
+        }
+
+        }
+        async function dlvryinfo() {
+
+            dlvryinfoobj=document.getElementById("oderinfo")
+
+            const response= await fetch(`${dlvryurl}view`,{
+                method:"get",
+                headers:{
+                    "content-type":"application/json",
+                    "Authorization":sessionStorage.getItem("token")
+                }
+            })
+
+            const responsedata=await response.json()
+                     
+            if(responsedata.error==true){
+            alert(responsedata.message)
+            return
+          }
+
+          if(responsedata.error==false){
+
+            const products=responsedata.data;
+            dlvryinfoobj.innerHTML=" "
+            for( let i=0;i<products.length;i++){
+           dlvryinfoobj.innerHTML+=`
+            <div class="address">
+                            <div class="dlvryside"><p>Customer name:${products[i].fullname}</P></div>
+                            <div class="dlvryside"><p>mobile number:${products[i].number}</P></div>
+                            <div class="dlvryside"><p>address:${products[i].mainaddr}</P></div>
+                            <div class="dlvryside"><p>State:${products[i].state}</P></div>
+                            <div class="dlvryside"><p>Pincode:${products[i].pincode}</P></div>
+                            </div>
+                            <div class="btn">
+                                <button onclick="eidtdetails(${products[i].adrsid})">edit details</button>
+                            </div>
+           </div> `
+          }
+        }     
+            
+        }
+
+        function eidtdetails(adrsid){
+            sessionStorage.setItem("adrsid",adrsid)
+            location.href="deliveryedit.html"
+
+        }
+        dlvryinfo()
+    
+       
+    </script>
+</body>
+</html>
+</body>
+</html>

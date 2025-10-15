@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>sign up page</title>
+    <style>
+        body{
+            background-color: cornflowerblue;
+        }
+        form{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+          row-gap: 10px;
+            width: 40%;
+            height: 40vh;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            border: 2px solid rgb(73, 130, 205);
+            border-radius: 10px;
+        }
+        form input,select{
+            border-radius: 10px;
+            border: none;
+            height: 4vh;
+            text-align: center;
+        }
+         .a{
+            width: 300px;
+
+        }
+        form button{
+            margin-top: 20px;
+            height: 4vh;
+            width:110px;
+            border-radius: 10px;
+            border: none;
+            background-color: rgb(215, 89, 89);
+            color: white;
+        }
+       
+        h1{
+            text-align: center;
+            position: absolute;
+            top: 15%;
+            left: 30%;
+            font-family: cursive;
+            color: white;
+            
+        }
+        a{
+            text-decoration: none;
+            color: white;
+        }
+        .login{
+            width: 90%;
+            height: 12vh;
+           display: flex;   
+           justify-content: end;
+           align-items: center;    
+        }
+        .login button{
+            height: 4vh;
+            width: fit-content;
+            margin-right: 10px;
+            border-radius: 10px;
+            border: none;
+            background-color:red;
+        }
+         .login button:hover{
+            height: 4vh;
+            width: fit-content;
+            padding: 6px;
+            margin-right: 10px;
+            border-radius: 10px;
+            border: none;
+            background-color:rgb(192, 63, 63);
+        }
+    </style>
+</head>
+<body>
+    <h1>SIGN UP</h1>
+    <form action=""  onsubmit="signup();return false" >
+        <input type="text" placeholder=" USERNAME"    id="uname"  class="a">
+        <input type="password" placeholder="PASSWORD" id="upass" class="a">
+        <select name="" id="urole" class="a">
+            <option value="vendor">vendor</option>
+            <option value="buyer">buyer</option>
+        </select>
+        <button class="ab">signup</button>
+    </form>
+            <div class="login">
+            <button class="ab"><a href="login.html">Old User click-me!</a></button>
+            </div>
+   
+
+    <script>
+
+     async function signup(){
+
+       unameobj = document.getElementById("uname")
+       upassobj = document.getElementById("upass")
+       uroleobj = document.getElementById("urole")
+
+       const payload= {username:unameobj.value,password:upassobj.value,role:uroleobj.value}
+
+            const bendurl="http://localhost:4100/auth/"; 
+            
+            const response=await fetch(`${bendurl}signup`,{
+                method :"post",
+                body: JSON.stringify(payload),
+                headers:{
+                    "content-type": "application/json"
+                }
+            })
+           const responsedata=await response.json()
+           alert(responsedata.message);
+           if(responsedata.error===false){
+            location.href="login.html"
+           }
+        }
+    </script>
+</body>
+</html>
